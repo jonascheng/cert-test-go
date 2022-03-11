@@ -37,8 +37,9 @@ build: clean ## build the server application
 
 .PHONY: server-key
 server-key:
+	@echo "********** Please type pass phrase 'mypassword' **********"
 	## Key considerations for algorithm RSA ≥ 1024-bit
-	if [ ! -f server.key ]; then openssl genrsa -out server.key 1024; fi;
+	if [ ! -f server.key ]; then openssl genrsa -des3 -out server.key 1024; fi;
 	## Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
 	if [ ! -f server.crt ]; then openssl req -new -x509 -key server.key -out server.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
 

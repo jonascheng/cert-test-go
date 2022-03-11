@@ -21,7 +21,7 @@ setup: ## setup go modules
 clean: ## cleans the binary
 	go clean
 	rm -rf ./bin
-	rm -rf server.*
+	rm -rf *.key *.crt
 
 .PHONY: run
 run: setup server-key ## runs go run the application
@@ -37,11 +37,24 @@ build: clean ## build the server application
 
 .PHONY: server-key
 server-key:
-	@echo "********** Please type pass phrase 'mypassword' **********"
 	## Key considerations for algorithm RSA ≥ 1024-bit
-	if [ ! -f server.key ]; then openssl genrsa -des3 -out server.key 1024; fi;
+	## PKCS1 format (nocrypt)
+	if [ ! -f pkcs1-nocrypt.key ]; then openssl genrsa -out pkcs1-nocrypt.key 1024; fi;
 	## Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
-	if [ ! -f server.crt ]; then openssl req -new -x509 -key server.key -out server.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
+	if [ ! -f pkcs1-nocrypt.crt ]; then openssl req -new -x509 -key pkcs1-nocrypt.key -out pkcs1-nocrypt.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
+	## PKCS8 format (nocrypt)
+	if [ ! -f pkcs8-nocrypt.key ]; then openssl pkcs8 -topk8 -inform PEM -in pkcs1-nocrypt.key -nocrypt -out pkcs8-nocrypt.key; fi;
+	## Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+	if [ ! -f pkcs8-nocrypt.crt ]; then openssl req -new -x509 -key pkcs8-nocrypt.key -out pkcs8-nocrypt.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
+	@echo "********** Please type pass phrase 'mypassword' **********"
+	## PKCS1 format (crypt)
+	if [ ! -f pkcs1-crypt.key ]; then openssl genrsa -des3 -out pkcs1-crypt.key 1024; fi;
+	## Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+	if [ ! -f pkcs1-crypt.crt ]; then openssl req -new -x509 -key pkcs1-crypt.key -out pkcs1-crypt.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
+	## PKCS8 format (crypt)
+	if [ ! -f pkcs8-crypt.key ]; then openssl pkcs8 -topk8 -inform PEM -in pkcs1-nocrypt.key -out pkcs8-crypt.key; fi;
+	## Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+	if [ ! -f pkcs8-crypt.crt ]; then openssl req -new -x509 -key pkcs8-crypt.key -out pkcs8-crypt.crt -days 3650 -subj "/C=TW/ST=Test/L=Test/O=Test/OU=Test/CN=localhost/emailAddress=Test@email"; fi;
 
 .PHONY: help
 help: ## prints this help message

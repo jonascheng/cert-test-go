@@ -24,7 +24,13 @@ func decryptKey(key []byte, password string) ([]byte, error) {
 		log.Println("extra data included in key")
 		return nil, errors.New("extra data included in key")
 	}
+	log.Printf("block.Type %v", block.Type)
+	log.Printf("block.Headers %v", block.Headers)
+	if block.Type == "ENCRYPTED PRIVATE KEY" {
+		log.Println("not support encrypted PKCS8")
+	}
 	if !x509.IsEncryptedPEMBlock(block) {
+		log.Printf("key is not encrypted %v", block)
 		return key, nil
 	}
 	der, err := x509.DecryptPEMBlock(block, []byte(password))
@@ -74,9 +80,41 @@ func readCert(certFileName string) []byte {
 	return certFile
 }
 
-func main() {
-	key := readKey("server.key")
-	cert := readCert("server.crt")
+func testPKCS1Nocrypt() {
+	log.Println("********** testPKCS1Nocrypt **********")
+	key := readKey("pkcs1-nocrypt.key")
+	cert := readCert("pkcs1-nocrypt.crt")
 	_, err := tls.X509KeyPair(cert, key)
 	check(err)
+}
+
+func testPKCS8Nocrypt() {
+	log.Println("********** testPKCS8Nocrypt **********")
+	key := readKey("pkcs8-nocrypt.key")
+	cert := readCert("pkcs8-nocrypt.crt")
+	_, err := tls.X509KeyPair(cert, key)
+	check(err)
+}
+
+func testPKCS1Crypt() {
+	log.Println("********** testPKCS1Crypt **********")
+	key := readKey("pkcs1-crypt.key")
+	cert := readCert("pkcs1-crypt.crt")
+	_, err := tls.X509KeyPair(cert, key)
+	check(err)
+}
+
+func testPKCS8Crypt() {
+	log.Println("********** testPKCS8Crypt **********")
+	key := readKey("pkcs8-crypt.key")
+	cert := readCert("pkcs8-crypt.crt")
+	_, err := tls.X509KeyPair(cert, key)
+	check(err)
+}
+
+func main() {
+	testPKCS1Nocrypt()
+	testPKCS8Nocrypt()
+	testPKCS1Crypt()
+	testPKCS8Crypt()
 }

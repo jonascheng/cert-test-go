@@ -33,6 +33,6 @@ bin/**
 coverage.out
 
 # self-signed key
-server.key
-server.crt
-server.csr
+*.key
+*.crt
+*.csr
